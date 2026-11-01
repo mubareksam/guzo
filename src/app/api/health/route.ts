@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { db, ensureReady } from "@/db";
 import { sql } from "drizzle-orm";
 import { ensureSeeded } from "@/db/seed";
 import { warmLineShapes } from "@/lib/data";
@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
+    await ensureReady();
     await db.execute(sql`select 1`);
     try {
       await ensureSeeded();
