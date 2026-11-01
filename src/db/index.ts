@@ -1,24 +1,70 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/pglite";
+import { PGlite } from "@electric-sql/pglite";
+import fs from "node:fs";
+import path from "node:path";
 
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required");
+// ── PGlite: full PostgreSQL running in-process via WASM ──────────────
+// Persists to a local directory so data survives server restarts.
+function resolveDataDir(): string {
+  const requested = process.env.PGLITE_DATA_DIR || ".pglite/db";
+  try {
+    const abs = path.resolve(requested);
+    fs.mkdirSync(abs, { recursive: true });
+    return abs;
+  } catch {
+    return ""; // fall back to in-memory
+  }
 }
 
 const globalForDb = globalThis as typeof globalThis & {
-  __arenaNextJsPostgresqlPool?: Pool;
+  __guzoPglite?: PGlite;
+  __guzoDb?: ReturnType<typeof drizzle>;
+  __guzoReady?: Promise<void>;
+  __guzoReadyResolved?: boolean;
 };
 
-export const pool =
-  globalForDb.__arenaNextJsPostgresqlPool ??
-  new Pool({
-    connectionString: databaseUrl,
-  });
-
-if (process.env.NODE_ENV !== "production") {
-  globalForDb.__arenaNextJsPostgresqlPool = pool;
+function initPglite() {
+  if (!globalForDb.__guzoPglite) {
+    const dataDir = resolveDataDir();
+    const pg = dataDir ? new PGlite(dataDir) : new PGlite();
+    globalForDb.__guzoPglite = pg;
+    globalForDb.__guzoDb = drizzle(pg);
+    globalForDb.__guzoReady = pg.waitReady.then(() => {
+      globalForDb.__guzoReadyResolved = true;
+      const mode = dataDir ? `persisted → ${dataDir}` : "in-memory";
+      console.log(`[db] PGlite ready — in-process PostgreSQL (WASM, ${mode})`);
+    });
+  }
 }
 
-export const db = drizzle(pool);
+/** Await PGlite boot. Call at the start of request handlers if needed. */
+export async function ensureReady(): Promise<void> {
+  initPglite();
+  if (!globalForDb.__guzoReadyResolved && globalForDb.__guzoReady) {
+    await globalForDb.__guzoReady;
+  }
+}
+
+// Eagerly start PGlite on import — PGlite queues queries until ready.
+initPglite();
+
+// ── Exports ──────────────────────────────────────────────────────────
+// Export the real drizzle instance — do NOT proxy, since drizzle uses
+// a fluent query-builder API (select().from().where()) that breaks
+// under proxy interception.
+// PGlite internally queues queries until the WASM engine is ready.
+
+export const db = (() => {
+  initPglite();
+  return globalForDb.__guzoDb!;
+})();
+
+export const pool = (() => {
+  initPglite();
+  return globalForDb.__guzoPglite!;
+})();
+
+export function getPglite(): PGlite {
+  initPglite();
+  return globalForDb.__guzoPglite!;
+}
