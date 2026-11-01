@@ -19,13 +19,30 @@ export const viewport: Viewport = {
   themeColor: "#124532",
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser();
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var t = localStorage.getItem('guzo-theme');
+                  var d = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  if (d) document.documentElement.classList.add('dark');
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-screen bg-cream text-ink antialiased">
         <SiteHeader user={user} />
         <main className="min-h-[60vh]">{children}</main>

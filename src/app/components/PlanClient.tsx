@@ -90,6 +90,7 @@ export default function PlanClient({
 }) {
   const [from, setFrom] = useState<PlaceValue | null>(initialFrom);
   const [to, setTo] = useState<PlaceValue | null>(initialTo);
+  const [via, setVia] = useState<PlaceValue | null>(null);
   const [fromText, setFromText] = useState("");
   const [toText, setToText] = useState("");
   const [locating, setLocating] = useState(false);
@@ -189,13 +190,16 @@ export default function PlanClient({
       setLoading(true);
       setWalkPreview(null);
       try {
-        const body = {
+        const body: Record<string, unknown> = {
           origin: f ? { lat: f.lat, lng: f.lng, label: f.label } : { query: fromText },
           destination: t ? { lat: t.lat, lng: t.lng, label: t.label } : { query: toText },
           departAt: departMode === "later" && departAt ? new Date(departAt).toISOString() : undefined,
           priority,
           modes: modes.length === MODES.length ? [] : modes,
         };
+        if (via) {
+          body.via = { lat: via.lat, lng: via.lng, label: via.label };
+        }
         const r = await fetch("/api/plan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
         const data = await r.json();
         if (!r.ok) throw new Error(data?.error ?? "Could not plan this trip.");
@@ -341,6 +345,16 @@ export default function PlanClient({
               placeholder="Destination — area, landmark, station"
               onPickOnMap={() => setPicking("to")}
               picking={picking === "to"}
+            />
+            <PlaceInput
+              id="via"
+              label="Via (optional)"
+              dotClass="bg-gold ring-amber-100"
+              value={null}
+              onChange={(v) => {
+                setVia(v);
+              }}
+              placeholder="Pass through — area, landmark, station"
             />
             <button
               type="button"
