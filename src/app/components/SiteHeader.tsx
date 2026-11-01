@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Home, LogIn, LogOut, MapPinned, MessageSquareText, Navigation, PlusCircle, ShieldCheck, Trophy, UserRound } from "lucide-react";
 import type { SessionUser } from "@/lib/auth";
 import { badgeFor } from "@/lib/badges";
+import DarkModeToggle from "./DarkModeToggle";
 
 const links = [
   { href: "/plan", label: "Plan a trip", icon: Navigation },
@@ -83,6 +84,7 @@ export default function SiteHeader({ user }: { user: SessionUser | null }) {
           </nav>
 
           <div className="ml-auto flex items-center gap-2">
+            <DarkModeToggle />
             {user ? (
               <>
                 <Link href="/dashboard" className="flex items-center gap-2 rounded-full border border-forest/15 bg-white/80 py-1 pl-1 pr-1 sm:pr-3 hover:border-forest/30">
@@ -90,7 +92,7 @@ export default function SiteHeader({ user }: { user: SessionUser | null }) {
                   <span className="hidden text-left leading-tight sm:block">
                     <span className="block max-w-[120px] truncate text-xs font-semibold text-ink">{user.name}</span>
                     <span className="block text-[10px] text-ink/55">
-                      {user.points} pts · {badge?.name}
+                      {user.points} pts · {badge?.am}
                     </span>
                   </span>
                 </Link>

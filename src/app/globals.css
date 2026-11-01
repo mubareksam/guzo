@@ -24,6 +24,53 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ── Dark mode ─────────────────────────────────────────────────────── */
+.dark body,
+html.dark body {
+  background: #0a0f0d;
+  color: #e8e4d5;
+}
+
+.dark {
+  --color-ink: #e8e4d5;
+  --color-cream: #0a0f0d;
+  --color-sand: #141c18;
+  --color-forest: #1a6b4d;
+  --color-moss: #3a9d72;
+  --color-leaf: #6fbb8e;
+  --color-gold: #e3ae3c;
+  --color-brick: #d4695c;
+}
+
+.dark .bg-cream { background: #0a0f0d !important; }
+.dark .bg-white { background: #111a16 !important; }
+.dark .bg-sand\/50,
+.dark .bg-sand { background: #141c18 !important; }
+.dark .bg-cream\/70,
+.dark .bg-cream\/60,
+.dark .bg-cream\/40 { background: rgba(20, 28, 24, 0.8) !important; }
+.dark .bg-white\/80,
+.dark .bg-white\/95,
+.dark .bg-white\/70 { background: rgba(17, 26, 22, 0.92) !important; }
+.dark .bg-forest { background: #1a6b4d !important; }
+.dark .text-ink { color: #e8e4d5 !important; }
+.dark .text-ink\/70 { color: rgba(232, 228, 213, 0.7) !important; }
+.dark .text-ink\/65 { color: rgba(232, 228, 213, 0.65) !important; }
+.dark .text-ink\/55 { color: rgba(232, 228, 213, 0.55) !important; }
+.dark .text-ink\/50 { color: rgba(232, 228, 213, 0.5) !important; }
+.dark .text-ink\/45 { color: rgba(232, 228, 213, 0.45) !important; }
+.dark .text-ink\/40 { color: rgba(232, 228, 213, 0.4) !important; }
+.dark .text-ink\/35 { color: rgba(232, 228, 213, 0.35) !important; }
+.dark .border-forest\/10,
+.dark .border-forest\/15 { border-color: rgba(26, 107, 77, 0.25) !important; }
+.dark .ring-forest\/15,
+.dark .ring-forest\/20 { --tw-ring-color: rgba(26, 107, 77, 0.3) !important; }
+
+.dark .leaflet-container { background: #0d1510 !important; }
+.dark .leaflet-tile { filter: brightness(0.7) contrast(1.1) saturate(0.8); }
+.dark .leaflet-popup-content-wrapper { background: #111a16; color: #e8e4d5; }
+.dark .leaflet-popup-tip { background: #111a16; }
+
 ::selection {
   background: var(--color-gold);
   color: var(--color-ink);
@@ -34,6 +81,12 @@ body {
     radial-gradient(circle at 18% 20%, rgba(227, 174, 60, 0.18) 0, transparent 42%),
     radial-gradient(circle at 82% 8%, rgba(111, 187, 142, 0.2) 0, transparent 40%),
     radial-gradient(circle at 60% 92%, rgba(47, 125, 91, 0.16) 0, transparent 45%);
+}
+.dark .hero-pattern {
+  background-image:
+    radial-gradient(circle at 18% 20%, rgba(227, 174, 60, 0.08) 0, transparent 42%),
+    radial-gradient(circle at 82% 8%, rgba(111, 187, 142, 0.08) 0, transparent 40%),
+    radial-gradient(circle at 60% 92%, rgba(47, 125, 91, 0.06) 0, transparent 45%);
 }
 
 .grid-lines {
@@ -122,7 +175,7 @@ body {
   border-radius: 999px;
 }
 
-/* ── v2 map pins & app chrome ───────────────────────────── */
+/* ── v2 map pins & app chrome ───────────────────────────────────── */
 .guzo-pin {
   display: grid;
   place-items: center;
@@ -150,11 +203,21 @@ body {
 .pb-safe {
   padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
 }
+
+/* ── Mobile: prevent page zoom/scroll, only map is interactive ─── */
 @media (max-width: 1023px) {
   body {
     padding-bottom: calc(env(safe-area-inset-bottom) + 64px);
+    /* Prevent double-tap zoom on non-map elements */
+    touch-action: pan-y;
+    overscroll-behavior: none;
+  }
+  /* Only the map container gets full touch interaction */
+  .leaflet-container {
+    touch-action: none;
   }
 }
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -173,4 +236,27 @@ body {
 }
 .animate-rise {
   animation: guzo-rise 0.35s ease-out both;
+}
+
+/* ── Dark mode toggle button ──────────────────────────────────────── */
+.dark-mode-toggle {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid rgba(18, 69, 50, 0.15);
+  background: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.dark .dark-mode-toggle {
+  background: rgba(17, 26, 22, 0.9);
+  border-color: rgba(26, 107, 77, 0.3);
+}
+.dark-mode-toggle:hover {
+  background: rgba(18, 69, 50, 0.08);
+}
+.dark .dark-mode-toggle:hover {
+  background: rgba(26, 107, 77, 0.2);
 }

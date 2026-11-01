@@ -2,7 +2,12 @@ import { getNetwork, getWaitInfo } from "@/lib/data";
 import { describeLocation, resolvePlaceQuery } from "@/lib/geocode";
 import { getShapes, shapeKey, type Profile } from "@/lib/osrm";
 import { finalizeOption, planJourney, retag, type Priority, type TripOption } from "@/lib/planner";
-import { addisHour, fareFor, MODES, rideMinutes, walkMinutes, type Mode } from "@/lib/transit";
+import { addisHour, fareFor, haversineM, MODES, rideMinutes, walkMinutes, type Mode } from "@/lib/transit";
+
+/** Quick haversine distance in metres between two points. */
+function haversineCheck(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  return haversineM({ lat: lat1, lng: lng1 }, { lat: lat2, lng: lng2 });
+}
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
@@ -79,6 +84,7 @@ export async function POST(request: Request) {
   let body: {
     origin?: PointInput;
     destination?: PointInput;
+    via?: PointInput;
     departAt?: string;
     priority?: string;
     modes?: string[];
@@ -90,9 +96,10 @@ export async function POST(request: Request) {
   }
 
   const network = await getNetwork();
-  const [origin, destination] = await Promise.all([
+  const [origin, destination, viaPoint] = await Promise.all([
     resolvePoint(body.origin, network.raw),
     resolvePoint(body.destination, network.raw),
+    body.via ? resolvePoint(body.via, network.raw) : Promise.resolve(null),
   ]);
   if (!origin) return Response.json({ error: "We could not find your starting point. Share your location or type a place in Addis Ababa." }, { status: 400 });
   if (!destination) return Response.json({ error: "We could not find that destination in Addis Ababa. Try a landmark, area or station name." }, { status: 400 });
@@ -117,6 +124,28 @@ export async function POST(request: Request) {
 
   const hour = addisHour(departAt);
   let options = await snapToRoads(result.options, hour, priority);
+
+  // ── "Via" filter: keep only options whose ride legs pass near the via point ──
+  if (viaPoint) {
+    const VIA_RADIUS_M = 800; // metres
+    options = options.filter((opt) =>
+      opt.legs.some((leg) => {
+        if (leg.kind !== "ride") return false;
+        const stops = leg.stopsPassed ?? [];
+        if (stops.some((s) => haversineCheck(s.lat, s.lng, viaPoint.lat, viaPoint.lng) < VIA_RADIUS_M)) return true;
+        // Also check the leg's path points
+        for (const [lat, lng] of leg.path ?? []) {
+          if (haversineCheck(lat, lng, viaPoint.lat, viaPoint.lng) < VIA_RADIUS_M) return true;
+        }
+        return false;
+      }),
+    );
+    if (options.length === 0) {
+      // Fall back to all options but mark the via preference
+      options = result.options.map((o) => ({ ...o, viaWarning: `No direct route passes through ${viaPoint.label}. Showing best alternatives.` }));
+    }
+  }
+
   options = options.sort((a, b) => a.cost - b.cost);
   retag(options);
 
@@ -124,6 +153,7 @@ export async function POST(request: Request) {
     ok: true,
     origin,
     destination,
+    via: viaPoint,
     departAt: departAt.toISOString(),
     priority,
     generatedAt: new Date().toISOString(),
