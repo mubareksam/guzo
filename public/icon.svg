@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Guzo">
+  <rect width="512" height="512" rx="112" fill="#124532"/>
+  <path d="M120 392c0-96 64-112 144-144s128-48 128-128" stroke="#e3ae3c" stroke-width="34" stroke-linecap="round" stroke-dasharray="2 56" fill="none"/>
+  <circle cx="120" cy="392" r="48" fill="#e3ae3c"/>
+  <circle cx="392" cy="120" r="48" fill="none" stroke="#e3ae3c" stroke-width="32"/>
+</svg>

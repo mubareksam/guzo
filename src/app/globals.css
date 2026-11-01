@@ -1,0 +1,176 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0d2018;
+  --color-forest: #124532;
+  --color-moss: #2f7d5b;
+  --color-leaf: #6fbb8e;
+  --color-cream: #f9f5ea;
+  --color-sand: #efe6d2;
+  --color-gold: #e3ae3c;
+  --color-brick: #b4493c;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans Ethiopic", "Abyssinica SIL", sans-serif;
+}
+
+html,
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-ink);
+}
+
+.hero-pattern {
+  background-image:
+    radial-gradient(circle at 18% 20%, rgba(227, 174, 60, 0.18) 0, transparent 42%),
+    radial-gradient(circle at 82% 8%, rgba(111, 187, 142, 0.2) 0, transparent 40%),
+    radial-gradient(circle at 60% 92%, rgba(47, 125, 91, 0.16) 0, transparent 45%);
+}
+
+.grid-lines {
+  background-image:
+    linear-gradient(to right, rgba(18, 69, 50, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(18, 69, 50, 0.07) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.leaflet-container {
+  font-family: var(--font-sans);
+  background: #e8e4d5;
+  z-index: 0;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(13, 32, 24, 0.18);
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.guzo-marker {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: #124532;
+  color: #f9f5ea;
+  border: 2.5px solid #f9f5ea;
+  box-shadow: 0 6px 16px rgba(13, 32, 24, 0.35);
+  font-size: 15px;
+  line-height: 1;
+}
+
+.guzo-marker--selected {
+  background: #e3ae3c;
+  color: #0d2018;
+  transform: scale(1.18);
+}
+
+.guzo-marker--origin {
+  background: #2f7d5b;
+}
+
+.guzo-marker--destination {
+  background: #b4493c;
+}
+
+.guzo-marker--hub {
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+  background: #f9f5ea;
+  color: #124532;
+  border-color: #124532;
+}
+
+@keyframes guzo-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(47, 125, 91, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(47, 125, 91, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(47, 125, 91, 0);
+  }
+}
+
+.guzo-marker--origin {
+  animation: guzo-pulse 2.4s infinite;
+}
+
+.scroll-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: rgba(18, 69, 50, 0.25);
+  border-radius: 999px;
+}
+
+/* ── v2 map pins & app chrome ───────────────────────────── */
+.guzo-pin {
+  display: grid;
+  place-items: center;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 6px 16px rgba(13, 32, 24, 0.35);
+}
+.guzo-pin--pulse {
+  animation: guzo-pulse 2.2s infinite;
+}
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: 0 6px 18px rgba(13, 32, 24, 0.18) !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+.leaflet-control-zoom a {
+  color: #124532 !important;
+}
+.leaflet-tooltip {
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #0d2018;
+}
+.pb-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
+}
+@media (max-width: 1023px) {
+  body {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 64px);
+  }
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+@keyframes guzo-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-rise {
+  animation: guzo-rise 0.35s ease-out both;
+}
