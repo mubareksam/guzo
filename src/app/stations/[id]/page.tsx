@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, Clock3, MapPin, Navigation, PencilLine } from "lucide-react";
+import { ArrowRight, Camera, Clock3, ExternalLink, MapPin, Navigation, PencilLine } from "lucide-react";
 import MapCanvas from "@/app/components/MapCanvas";
 import type { MapLine, MapMarker, MarkerKind } from "@/app/components/MapView";
 import ReportForm from "@/app/components/ReportForm";
@@ -56,6 +56,42 @@ export default async function StationDetailPage({ params }: { params: Promise<{ 
       <div className="mt-4 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="space-y-5">
           <TransitSign name={station.name} am={station.nameAm} kind={station.kind} modes={departModes} passModes={passModes} />
+
+          {/* ── Station Visual / Street View ────────────────────── */}
+          <div className="overflow-hidden rounded-3xl border border-forest/10 bg-white">
+            <div className="relative h-[200px] bg-gradient-to-br from-forest via-moss to-forest sm:h-[240px]">
+              {/* Illustration placeholder — pattern with station info */}
+              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 30% 40%, #e3ae3c 1px, transparent 1px), radial-gradient(circle at 70% 60%, #6fbb8e 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
+              <div className="relative flex h-full flex-col items-center justify-center px-6 text-center text-cream">
+                <div className="grid h-16 w-16 place-items-center rounded-2xl bg-cream/15 backdrop-blur-sm">
+                  <MapPin size={28} className="text-gold" />
+                </div>
+                <p className="mt-3 text-lg font-bold">{station.name}</p>
+                <p className="text-sm text-cream/70">{station.nameAm}</p>
+                <p className="mt-1 text-xs text-cream/50">{station.area} · {station.kind.replace("_", " ")}</p>
+              </div>
+              {/* Google Street View link */}
+              <a
+                href={`https://www.google.com/maps/@${station.lat},${station.lng},3a,75y,90t/data=!3m6!1e1!3m4!1s!2e0!7i13312!8i6656`}
+                target="_blank"
+                rel="noreferrer"
+                className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-cream/20 px-3 py-1.5 text-[11px] font-semibold text-cream backdrop-blur-sm transition hover:bg-cream/30"
+              >
+                <Camera size={13} /> Street View
+                <ExternalLink size={10} />
+              </a>
+              {/* Google Maps direction link */}
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${station.lat},${station.lng}`}
+                target="_blank"
+                rel="noreferrer"
+                className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-cream/20 px-3 py-1.5 text-[11px] font-semibold text-cream backdrop-blur-sm transition hover:bg-cream/30"
+              >
+                <MapPin size={13} /> Google Maps
+                <ExternalLink size={10} />
+              </a>
+            </div>
+          </div>
 
           <div className="rounded-3xl border border-forest/10 bg-white p-5">
             <div className="flex items-start gap-3">

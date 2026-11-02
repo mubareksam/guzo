@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useEffect, useMemo, useState } from "react";
 import { CircleMarker, MapContainer, Marker, Polyline, Popup, TileLayer, Tooltip, useMap, useMapEvents, ZoomControl } from "react-leaflet";
+import { Layers, Map as MapIcon, Satellite, Mountain } from "lucide-react";
 import { rawSvg } from "./icons";
 
 export type MarkerKind =
@@ -109,6 +110,7 @@ function ClickCatcher({ onMapClick }: { onMapClick?: (lat: number, lng: number) 
 }
 
 export default function MapView({ markers, lines = [], center, zoom, className, fitKey, onMapClick, legend }: MapViewProps) {
+  const [mapStyle, setMapStyle] = useState<MapStyle>("standard");
   const start: [number, number] = center ?? (markers[0] ? [markers[0].lat, markers[0].lng] : [9.0108, 38.7613]);
   const fitPoints = useMemo(() => {
     const pts: Array<[number, number]> = [];
@@ -121,7 +123,7 @@ export default function MapView({ markers, lines = [], center, zoom, className, 
   return (
     <div className={`relative h-full w-full overflow-hidden ${className ?? ""}`}>
       <MapContainer center={start} zoom={zoom ?? 13} scrollWheelZoom className="h-full w-full" zoomControl={false} attributionControl>
-        <KeylessTiles />
+        <TileSelector style={mapStyle} />
         <ViewSync center={center} zoom={zoom} fitPoints={fitPoints} fitKey={fitKey} />
         <ClickCatcher onMapClick={onMapClick} />
         <ZoomControl position="topright" />
@@ -175,6 +177,7 @@ export default function MapView({ markers, lines = [], center, zoom, className, 
           ),
         )}
       </MapContainer>
+      <MapStyleControl style={mapStyle} onChange={setMapStyle} />
       {legend ? (
         <div className="pointer-events-none absolute bottom-6 left-2 z-[400] hidden rounded-xl bg-white/95 px-2.5 py-2 text-[10px] font-medium text-ink/70 shadow-md ring-1 ring-black/5 sm:block">
           {[
@@ -199,41 +202,140 @@ export default function MapView({ markers, lines = [], center, zoom, className, 
   );
 }
 
-/** Free, key-less tiles: OpenStreetMap first, OSM France "Humanitarian" as automatic fallback. */
-const TILE_SOURCES = [
-  {
+/** Available map tile sources — all free, no API key required. */
+export type MapStyle = "standard" | "satellite" | "terrain";
+
+const TILE_SOURCES: Record<MapStyle, {
+  url: string;
+  subdomains: string[];
+  attribution: string;
+  maxZoom: number;
+  label: string;
+  icon: typeof MapIcon;
+  darkFilter?: boolean;
+}> = {
+  standard: {
     url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-    subdomains: [] as string[],
+    subdomains: [],
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+    label: "Map",
+    icon: MapIcon,
   },
-  {
-    url: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+  satellite: {
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    subdomains: [],
+    attribution: "&copy; Esri, Maxar, Earthstar Geographics",
+    maxZoom: 18,
+    label: "Satellite",
+    icon: Satellite,
+  },
+  terrain: {
+    url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
     subdomains: ["a", "b", "c"],
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, tiles by OSM France',
+    attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> (&copy; OpenStreetMap, SRTM)',
+    maxZoom: 17,
+    label: "Terrain",
+    icon: Mountain,
   },
+};
+
+const FALLBACK_TILES = [
+  "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+  "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
 ];
 
-function KeylessTiles() {
-  const [index, setIndex] = useState(0);
+function TileSelector({ style }: { style: MapStyle }) {
+  const [fallbackIndex, setFallbackIndex] = useState(0);
   const [errors, setErrors] = useState(0);
-  const source = TILE_SOURCES[index];
+  const source = TILE_SOURCES[style];
+
+  // For satellite/terrain, if tiles fail, fall back to OSM
+  if (style !== "standard") {
+    return (
+      <>
+        <TileLayer
+          key={source.url}
+          url={source.url}
+          subdomains={source.subdomains.length ? source.subdomains : ["a", "b", "c"]}
+          attribution={source.attribution}
+          maxZoom={source.maxZoom}
+          eventHandlers={{
+            tileerror: () => {
+              const next = errors + 1;
+              if (next >= 6 && fallbackIndex < FALLBACK_TILES.length - 1) {
+                setFallbackIndex(fallbackIndex + 1);
+                setErrors(0);
+              } else {
+                setErrors(next);
+              }
+            },
+          }}
+        />
+        {errors >= 6 && fallbackIndex >= FALLBACK_TILES.length - 1 ? (
+          <TileLayer
+            key="fallback-osm"
+            url={FALLBACK_TILES[0]}
+            subdomains={["a", "b", "c"]}
+            attribution={TILE_SOURCES.standard.attribution}
+            maxZoom={19}
+          />
+        ) : null}
+      </>
+    );
+  }
+
+  // Standard view with built-in fallback
+  const url = errors >= 4 && fallbackIndex < FALLBACK_TILES.length - 1
+    ? FALLBACK_TILES[fallbackIndex]
+    : source.url;
+
   return (
     <TileLayer
-      key={source.url}
-      url={source.url}
-      subdomains={source.subdomains.length ? source.subdomains : ["a"]}
+      key={url}
+      url={url}
+      subdomains={source.subdomains.length ? source.subdomains : ["a", "b", "c"]}
       attribution={source.attribution}
-      maxZoom={19}
+      maxZoom={source.maxZoom}
       eventHandlers={{
         tileerror: () => {
           const next = errors + 1;
           setErrors(next);
-          if (next >= 4 && index < TILE_SOURCES.length - 1) {
-            setIndex(index + 1);
+          if (next >= 4 && fallbackIndex < FALLBACK_TILES.length - 1) {
+            setFallbackIndex(fallbackIndex + 1);
             setErrors(0);
           }
         },
       }}
     />
+  );
+}
+
+/** Map style toggle control (positioned on the map). */
+function MapStyleControl({ style, onChange }: { style: MapStyle; onChange: (s: MapStyle) => void }) {
+  const styles: MapStyle[] = ["standard", "satellite", "terrain"];
+  return (
+    <div className="absolute bottom-6 right-2 z-[1000] flex flex-col gap-1 rounded-xl bg-white/95 p-1 shadow-lg ring-1 ring-black/10 backdrop-blur-sm dark:bg-[#111a16]/95">
+      {styles.map((s) => {
+        const Icon = TILE_SOURCES[s].icon;
+        const active = s === style;
+        return (
+          <button
+            key={s}
+            type="button"
+            onClick={() => onChange(s)}
+            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[10px] font-semibold transition ${
+              active
+                ? "bg-forest text-cream"
+                : "text-ink/60 hover:bg-forest/10 hover:text-ink"
+            }`}
+            title={TILE_SOURCES[s].label}
+          >
+            <Icon size={13} />
+            <span className="hidden min-[360px]:inline">{TILE_SOURCES[s].label}</span>
+          </button>
+        );
+      })}
+    </div>
   );
 }
