@@ -108,6 +108,20 @@ export const stationDefs: StationDef[] = [
   { key: "lrt_meskel", name: "Meskel Square LRT Station", am: "መስቀል አደባባይ ባቡር ጣቢያ", place: "meskel", lat: 9.0104, lng: 38.7605, kind: "lrt", landmark: "Platform below Meskel Square on Ras Mekonnen Avenue." },
   { key: "lrt_saris", name: "Saris LRT Station", am: "ሳሪስ ባቡር ጣቢያ", place: "saris", lat: 8.952, lng: 38.7634, kind: "lrt", landmark: "Platform on the Debre Zeit road at Saris." },
   { key: "lrt_kality", name: "Kality LRT Station", am: "ቃሊቲ ባቡር ጣቢያ", place: "kality", lat: 8.938, lng: 38.763, kind: "lrt", landmark: "Southern terminus of the North–South line, Kality depot." },
+
+  // ── City Bus Stops (Anbessa / Sheger) ──────────────────────────────
+  { key: "bus_41_eyesus", name: "41 Eyesus Bus Round", am: "41 ኢየሱስ ባስ ራውንድ", place: "kazanchis", lat: 9.0155, lng: 38.7660, kind: "bus_terminal", landmark: "Bus roundabout near 41 Eyesus church, Kazanchis. Anbessa and Sheger city buses." },
+  { key: "bus_lomi_med", name: "Lomi Meda Bus Stop", am: "ሎሚ ሜዳ ባስ ማቆያ", place: "sidist_kilo", lat: 9.0440, lng: 38.7590, kind: "bus_terminal", landmark: "Lomi Meda bus stop on the road between 6 Kilo and Shiro Meda." },
+  { key: "bus_zenework", name: "Zenebewerk Long Distance", am: "ዘነበወርቅ ረጅም ርቀት", place: "zenebework", lat: 8.9900, lng: 38.7080, kind: "bus_terminal", landmark: "Zenebewerk long distance bus station on the Jimma road.", verified: true },
+  { key: "bus_selam", name: "Selam Bus Station", am: "ሰላም ባስ መናሃሪያ", place: "autobus_tera", lat: 9.0380, lng: 38.7350, kind: "bus_terminal", landmark: "Selam Bus terminal near Autobus Tera, serves southern routes." },
+  { key: "bus_kasantshis", name: "Kasantshis Bus Stop", am: "ካዛንቺስ ባስ", place: "kazanchis", lat: 9.0175, lng: 38.7650, kind: "bus_terminal", landmark: "Kasantshis bus stop near ECA/Africa Hall." },
+  { key: "bus_asco_regional", name: "Asco Regional Bus Station", am: "አስኮ ረጅም ርቀት", place: "asko", lat: 9.0660, lng: 38.6940, kind: "intercity", landmark: "Asco regional bus station — buses to Ambo, Nekemte and western destinations.", verified: true },
+  { key: "bus_merkato_intra", name: "Merkato Intra-city Terminal", am: "መርካቶ የውስጥ ከተማ", place: "merkato", lat: 9.0340, lng: 38.7410, kind: "bus_terminal", landmark: "Merkato intra-city bus terminal for Anbessa city buses within the market area." },
+  { key: "bus_lafto_terminal", name: "Lafto Taxi and Bus Terminal", am: "ላፍቶ ታክሲ እና ባስ", place: "lafto", lat: 8.9500, lng: 38.7420, kind: "bus_terminal", landmark: "Lafto combined taxi and bus terminal near Lafto Mall.", verified: true },
+
+  // ── Bajaj Stands ───────────────────────────────────────────────────
+  { key: "bajaj_alembank", name: "Alembank Roundabout Bajaj", am: "አለምባንክ ባጃጅ", place: "bulgaria", lat: 8.9998, lng: 38.7580, kind: "bajaj_stand", landmark: "Alembank roundabout bajaj stand, connects to Bulgaria and Gofa." },
+  { key: "bajaj_gerji", name: "Gerji Bajaj Stand", am: "ገርጂ ባጃጅ", place: "gerji", lat: 8.9960, lng: 38.8160, kind: "bajaj_stand", landmark: "Gerji bajaj stand near Wereda 13 administration office." },
 ];
 
 /** [originStationKey, mode, via place keys (in order, last = terminus), popularity 1–5, options] */
