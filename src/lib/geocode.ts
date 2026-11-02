@@ -27,8 +27,45 @@ export function normalize(text: string) {
     .trim();
 }
 
+/** Common Ethiopian transport term aliases (Amharic → English). */
+const TRANSPORT_ALIASES: Record<string, string> = {
+  "መናሃሪያ": "terminal",
+  "menahereya": "terminal",
+  "menahriya": "terminal",
+  "menehriya": "terminal",
+  "ተራ": "tera",
+  "ቴራ": "tera",
+  "ማዞሪያ": "mazoria",
+  "መናኸሪያ": "terminal",
+  "ባስ": "bus",
+  "ታክሲ": "taxi",
+  "ባጃጅ": "bajaj",
+  "ባቡር": "train",
+  "ገበያ": "market",
+  "አደባባይ": "square",
+  "ሆስፒታል": "hospital",
+  "ት/ቤት": "school",
+  "ቤተ ክርስቲያን": "church",
+  "መስጊድ": "mosque",
+};
+
+export function expandQuery(text: string): string[] {
+  const q = normalize(text);
+  const expanded = new Set<string>([q]);
+  for (const [alias, canonical] of Object.entries(TRANSPORT_ALIASES)) {
+    const normAlias = normalize(alias);
+    if (q.includes(normAlias)) {
+      expanded.add(q.replace(normAlias, canonical));
+    }
+    if (q.includes(canonical)) {
+      expanded.add(q.replace(canonical, normAlias));
+    }
+  }
+  return Array.from(expanded);
+}
+
 function editDistance(a: string, b: string): number {
-  if (Math.abs(a.length - b.length) > 3) return 9;
+  if (Math.abs(a.length - b.length) > 4) return 9;
   const dp = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
   for (let j = 1; j <= b.length; j++) dp[0][j] = j;
   for (let i = 1; i <= a.length; i++)
@@ -39,16 +76,28 @@ function editDistance(a: string, b: string): number {
 
 function score(query: string, candidates: string[]): number {
   let best = 0;
-  for (const raw of candidates) {
-    const c = normalize(raw);
-    if (!c) continue;
-    if (c === query) best = Math.max(best, 100);
-    else if (c.startsWith(query)) best = Math.max(best, 85 - Math.min(20, c.length - query.length));
-    else if (c.split(" ").some((w) => w.startsWith(query))) best = Math.max(best, 70);
-    else if (c.includes(query)) best = Math.max(best, 55);
-    else if (query.length >= 4) {
-      const d = editDistance(query, c.slice(0, query.length + 1));
-      if (d <= (query.length > 6 ? 2 : 1)) best = Math.max(best, 45 - d * 5);
+  // Try all expanded query variations (Amharic ↔ English)
+  const queryVariations = expandQuery(query);
+  for (const q of queryVariations) {
+    for (const raw of candidates) {
+      const c = normalize(raw);
+      if (!c) continue;
+      if (c === q) best = Math.max(best, 100);
+      else if (c.startsWith(q)) best = Math.max(best, 85 - Math.min(20, c.length - q.length));
+      else if (c.split(" ").some((w) => w.startsWith(q))) best = Math.max(best, 70);
+      else if (q.split(" ").some((qw) => c.split(" ").some((cw) => cw.startsWith(qw)))) best = Math.max(best, 65);
+      else if (c.includes(q)) best = Math.max(best, 55);
+      else if (q.length >= 3) {
+        // More lenient fuzzy matching — allow up to 2 typos for longer queries
+        const maxDist = q.length > 8 ? 3 : q.length > 5 ? 2 : 1;
+        const d = editDistance(q, c.slice(0, q.length + 2));
+        if (d <= maxDist) best = Math.max(best, 45 - d * 4);
+        // Also check if any word in candidates fuzzy-matches
+        for (const word of c.split(" ")) {
+          const wd = editDistance(q, word);
+          if (wd <= maxDist) best = Math.max(best, 40 - wd * 4);
+        }
+      }
     }
   }
   return best;
