@@ -121,7 +121,7 @@ export default function MapView({ markers, lines = [], center, zoom, className, 
   }, [lines, markers]);
 
   return (
-    <div className={`relative h-full w-full overflow-hidden ${className ?? ""}`}>
+    <div className={`relative h-full w-full overflow-hidden ${className ?? ""}`} style={{ isolation: "isolate" }}>
       <MapContainer center={start} zoom={zoom ?? 13} scrollWheelZoom className="h-full w-full" zoomControl={false} attributionControl>
         <TileSelector style={mapStyle} />
         <ViewSync center={center} zoom={zoom} fitPoints={fitPoints} fitKey={fitKey} />
@@ -315,7 +315,7 @@ function TileSelector({ style }: { style: MapStyle }) {
 function MapStyleControl({ style, onChange }: { style: MapStyle; onChange: (s: MapStyle) => void }) {
   const styles: MapStyle[] = ["standard", "satellite", "terrain"];
   return (
-    <div className="absolute bottom-6 right-2 z-[1000] flex flex-col gap-1 rounded-xl bg-white/95 p-1 shadow-lg ring-1 ring-black/10 backdrop-blur-sm dark:bg-[#111a16]/95">
+    <div className="absolute bottom-20 right-2 z-[400] flex flex-col gap-0.5 rounded-lg bg-white/95 p-0.5 shadow-md ring-1 ring-black/10 backdrop-blur-sm sm:bottom-6 sm:gap-1 sm:rounded-xl sm:p-1 dark:bg-[#111a16]/95">
       {styles.map((s) => {
         const Icon = TILE_SOURCES[s].icon;
         const active = s === style;
@@ -324,15 +324,16 @@ function MapStyleControl({ style, onChange }: { style: MapStyle; onChange: (s: M
             key={s}
             type="button"
             onClick={() => onChange(s)}
-            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[10px] font-semibold transition ${
+            className={`flex items-center gap-1 rounded-md px-2 py-1 text-[9px] font-semibold transition sm:gap-1.5 sm:rounded-lg sm:px-2.5 sm:py-1.5 sm:text-[10px] ${
               active
                 ? "bg-forest text-cream"
                 : "text-ink/60 hover:bg-forest/10 hover:text-ink"
             }`}
             title={TILE_SOURCES[s].label}
           >
-            <Icon size={13} />
-            <span className="hidden min-[360px]:inline">{TILE_SOURCES[s].label}</span>
+            <Icon size={12} className="sm:hidden" />
+            <Icon size={13} className="hidden sm:inline" />
+            <span className="hidden sm:inline">{TILE_SOURCES[s].label}</span>
           </button>
         );
       })}
