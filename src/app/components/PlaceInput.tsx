@@ -59,8 +59,10 @@ export default function PlaceInput({
     const quick = setTimeout(async () => {
       try {
         const r = await fetch(`/api/places?osm=0&q=${encodeURIComponent(text)}`);
-        const d = (await r.json()) as { hits: Hit[] };
-        if (alive) setHits(d.hits);
+        if (r.ok) {
+          const d = (await r.json()) as { hits: Hit[] };
+          if (alive) setHits(d.hits);
+        }
       } catch {
         /* ignore */
       }
@@ -71,8 +73,10 @@ export default function PlaceInput({
             setLoading(true);
             try {
               const r = await fetch(`/api/places?q=${encodeURIComponent(text)}`);
-              const d = (await r.json()) as { hits: Hit[] };
-              if (alive) setHits(d.hits);
+              if (r.ok) {
+                const d = (await r.json()) as { hits: Hit[] };
+                if (alive) setHits(d.hits);
+              }
             } catch {
               /* ignore */
             } finally {

@@ -24,8 +24,12 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(isRegister ? { name, email, password, homeArea } : { email, password }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data?.error ?? "Something went wrong.");
+      if (!response.ok) {
+        let errorMsg = "Something went wrong.";
+        try { const errData = await response.json(); errorMsg = errData?.error ?? errorMsg; } catch { errorMsg = `Server error (${response.status}).`; }
+        throw new Error(errorMsg);
+      }
+      await response.json();
       router.push("/dashboard");
       router.refresh();
     } catch (caught) {

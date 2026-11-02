@@ -189,13 +189,14 @@ function generalizedCost(label: { time: number; walkM: number; rides: number; fa
   const popBonus = label.rides > 0 ? (label.pop / label.rides - 3) * 2 : 0;
   switch (priority) {
     case "fastest":
-      return label.time + transfers * 2 + label.mids;
+      return label.time + transfers * 3 + label.mids * 2;
     case "cheapest":
-      return label.fareMin + label.time * 0.15 + transfers * 2;
+      return label.fareMin + label.time * 0.1 + transfers * 3;
     case "less_walking":
-      return label.time + walkMin * 3 + transfers * 5 + label.mids * 3;
+      return label.time + walkMin * 4 + transfers * 6 + label.mids * 4;
     default:
-      return label.time + walkMin * 0.5 + transfers * 7 + label.fareMin * 0.06 + label.mids * 4 - popBonus;
+      // Balanced: time + walk + transfers + fare, weighted realistically
+      return label.time + walkMin * 0.6 + transfers * 8 + label.fareMin * 0.08 + label.mids * 5 - popBonus;
   }
 }
 

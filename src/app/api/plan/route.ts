@@ -81,6 +81,7 @@ async function snapToRoads(options: TripOption[], hour: number, priority: Priori
 }
 
 export async function POST(request: Request) {
+  try {
   let body: {
     origin?: PointInput;
     destination?: PointInput;
@@ -160,4 +161,8 @@ export async function POST(request: Request) {
     ...result,
     options,
   });
+  } catch (error) {
+    console.error("[api/plan] Error:", error);
+    return Response.json({ error: "Trip planning failed. Please try again." }, { status: 500 });
+  }
 }

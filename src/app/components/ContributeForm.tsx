@@ -42,7 +42,10 @@ export default function ContributeForm({
 
   useEffect(() => {
     fetch("/api/places?q=")
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("Failed to load stations");
+        return r.json();
+      })
       .then((data: { hits: Array<{ id: string; label: string; sublabel: string; kind: string; stationId?: number }> }) => {
         const stationHits = data.hits
           .filter((h) => h.stationId)
@@ -105,8 +108,17 @@ export default function ContributeForm({
           details,
         }),
       });
+      if (!response.ok) {
+        let errorMsg = "Could not submit.";
+        try {
+          const errData = await response.json();
+          errorMsg = errData?.error ?? errorMsg;
+        } catch {
+          errorMsg = `Server error (${response.status}). Please try again.`;
+        }
+        throw new Error(errorMsg);
+      }
       const data = await response.json();
-      if (!response.ok) throw new Error(data?.error ?? "Could not submit.");
       setState("done");
       setMessage(data.message);
       setStationName("");

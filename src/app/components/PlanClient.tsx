@@ -133,8 +133,10 @@ export default function PlanClient({
         let label = "My location";
         try {
           const r = await fetch(`/api/places?lat=${lat}&lng=${lng}`);
-          const d = (await r.json()) as { location: { label: string } };
-          label = `My location · ${d.location.label.toLowerCase()}`;
+          if (r.ok) {
+            const d = (await r.json()) as { location: { label: string } };
+            label = `My location · ${d.location.label.toLowerCase()}`;
+          }
         } catch {
           /* keep default */
         }
@@ -161,8 +163,10 @@ export default function PlanClient({
       let label = "Dropped pin";
       try {
         const r = await fetch(`/api/places?lat=${lat}&lng=${lng}`);
-        const d = (await r.json()) as { location: { label: string } };
-        label = `Pin · ${d.location.label.toLowerCase()}`;
+        if (r.ok) {
+          const d = (await r.json()) as { location: { label: string } };
+          label = `Pin · ${d.location.label.toLowerCase()}`;
+        }
       } catch {
         /* ignore */
       }
@@ -201,8 +205,17 @@ export default function PlanClient({
           body.via = { lat: via.lat, lng: via.lng, label: via.label };
         }
         const r = await fetch("/api/plan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        if (!r.ok) {
+          let errorMsg = "Could not plan this trip.";
+          try {
+            const errData = await r.json();
+            errorMsg = errData?.error ?? errorMsg;
+          } catch {
+            errorMsg = `Server error (${r.status}). Please try again.`;
+          }
+          throw new Error(errorMsg);
+        }
         const data = await r.json();
-        if (!r.ok) throw new Error(data?.error ?? "Could not plan this trip.");
         const result = data as PlanResponse;
         setPlan(result);
         if (!f) setFrom({ ...result.origin, source: "search" });
@@ -237,6 +250,7 @@ export default function PlanClient({
     setWalkPreview({ id: `w-${st.id}`, coords: [[origin.lat, origin.lng], [st.lat, st.lng]], station: st, meters: null });
     try {
       const r = await fetch(`/api/shape?profile=foot&points=${origin.lat},${origin.lng};${st.lat},${st.lng}`);
+      if (!r.ok) throw new Error("Shape request failed");
       const d = (await r.json()) as { coords: Array<[number, number]>; distanceM: number | null };
       setWalkPreview({ id: `w-${st.id}-ok`, coords: d.coords, station: st, meters: d.distanceM });
     } catch {
