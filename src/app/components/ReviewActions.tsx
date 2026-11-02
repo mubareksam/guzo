@@ -13,9 +13,10 @@ export default function ReviewActions({ id }: { id: number }) {
     setBusy(action);
     setError(null);
     const r = await fetch("/api/admin/contributions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, action }) });
-    const d = await r.json();
+    let d: { error?: string } = {};
+    try { d = await r.json(); } catch { if (r.ok) { router.refresh(); return; } }
     setBusy(null);
-    if (!r.ok) setError(d.error ?? "Failed");
+    if (!r.ok) setError(d.error ?? `Failed (${r.status})`);
     else router.refresh();
   }
 

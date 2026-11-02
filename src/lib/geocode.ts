@@ -12,10 +12,26 @@ export type PlaceHit = {
 };
 
 type StationLite = { id: number; name: string; nameAm: string | null; area: string; landmark: string | null; lat: number; lng: number; kind: string };
+type PlaceEntry = { name: string; am: string; lat: number; lng: number; area: string; aliases?: string[] };
 
 const VIEWBOX = "38.62,9.13,38.95,8.82"; // west,north,east,south — greater Addis Ababa
 const cache = new Map<string, { at: number; hits: PlaceHit[] }>();
 let lastNominatim = 0;
+
+// ── Search index for fast lookup ──────────────────────────────────────
+type IndexedPlace = { key: string; name: string; am: string; area: string; lat: number; lng: number; tokens: Set<string> };
+let placeIndex: IndexedPlace[] | null = null;
+
+function buildIndex(): IndexedPlace[] {
+  if (placeIndex) return placeIndex;
+  placeIndex = [];
+  for (const [key, p] of Object.entries(places)) {
+    const text = normalize([p.name, p.am, ...(p.aliases ?? [])].join(" "));
+    const tokens = new Set(text.split(/\s+/).filter(Boolean));
+    placeIndex.push({ key, name: p.name, am: p.am, area: p.area, lat: p.lat, lng: p.lng, tokens });
+  }
+  return placeIndex;
+}
 
 export function normalize(text: string) {
   return text
@@ -64,62 +80,69 @@ export function expandQuery(text: string): string[] {
   return Array.from(expanded);
 }
 
-function editDistance(a: string, b: string): number {
-  if (Math.abs(a.length - b.length) > 4) return 9;
-  const dp = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
-  for (let j = 1; j <= b.length; j++) dp[0][j] = j;
-  for (let i = 1; i <= a.length; i++)
-    for (let j = 1; j <= b.length; j++)
-      dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
-  return dp[a.length][b.length];
-}
-
-function score(query: string, candidates: string[]): number {
-  let best = 0;
-  // Try all expanded query variations (Amharic ↔ English)
-  const queryVariations = expandQuery(query);
-  for (const q of queryVariations) {
-    for (const raw of candidates) {
-      const c = normalize(raw);
-      if (!c) continue;
-      if (c === q) best = Math.max(best, 100);
-      else if (c.startsWith(q)) best = Math.max(best, 85 - Math.min(20, c.length - q.length));
-      else if (c.split(" ").some((w) => w.startsWith(q))) best = Math.max(best, 70);
-      else if (q.split(" ").some((qw) => c.split(" ").some((cw) => cw.startsWith(qw)))) best = Math.max(best, 65);
-      else if (c.includes(q)) best = Math.max(best, 55);
-      else if (q.length >= 3) {
-        // More lenient fuzzy matching — allow up to 2 typos for longer queries
-        const maxDist = q.length > 8 ? 3 : q.length > 5 ? 2 : 1;
-        const d = editDistance(q, c.slice(0, q.length + 2));
-        if (d <= maxDist) best = Math.max(best, 45 - d * 4);
-        // Also check if any word in candidates fuzzy-matches
-        for (const word of c.split(" ")) {
-          const wd = editDistance(q, word);
-          if (wd <= maxDist) best = Math.max(best, 40 - wd * 4);
-        }
+/** Fast token-match score. Returns 0 if no match. */
+function fastScore(queryTokens: string[], placeTokens: Set<string>): number {
+  if (queryTokens.length === 0) return 0;
+  let matches = 0;
+  let prefixMatches = 0;
+  for (const qt of queryTokens) {
+    if (placeTokens.has(qt)) {
+      matches++;
+      prefixMatches++;
+    } else {
+      for (const pt of placeTokens) {
+        if (pt.startsWith(qt)) { prefixMatches += 0.7; break; }
+        if (qt.length >= 3 && pt.length >= 3 && pt.includes(qt)) { prefixMatches += 0.4; break; }
       }
     }
   }
-  return best;
+  const coverage = (matches + prefixMatches) / queryTokens.length;
+  if (coverage < 0.3) return 0;
+  // Boost exact and prefix matches
+  const exactRatio = matches / queryTokens.length;
+  return Math.round(coverage * 70 + exactRatio * 30);
 }
 
 export function searchLocal(query: string, stations: StationLite[], limit = 8): PlaceHit[] {
   const q = normalize(query);
-  const hits: Array<PlaceHit & { s: number }> = [];
+  const queryVariations = q ? expandQuery(q) : [""];
+  const queryTokenSets = queryVariations.map(v => v.split(/\s+/).filter(Boolean));
+  const idx = buildIndex();
+
   if (!q) {
-    for (const key of ["megenagna", "piassa", "meskel", "bole_medhanialem", "mexico", "merkato", "saris", "ayat", "bole_airport", "arat_kilo"]) {
-      const p = places[key];
-      hits.push({ id: `area:${key}`, label: p.name, sublabel: `${p.am} · ${p.area}`, lat: p.lat, lng: p.lng, kind: "area", s: 1 });
+    const defaultKeys = ["megenagna", "piassa", "meskel", "bole_medhanialem", "mexico", "merkato", "saris", "ayat", "bole_airport", "arat_kilo"];
+    const hits: PlaceHit[] = [];
+    for (const key of defaultKeys) {
+      const p = places[key as keyof typeof places];
+      if (p) hits.push({ id: `area:${key}`, label: p.name, sublabel: `${p.am} · ${p.area}`, lat: p.lat, lng: p.lng, kind: "area" });
     }
     return hits.slice(0, limit);
   }
-  for (const [key, p] of Object.entries(places)) {
-    const s = score(q, [p.name, p.am, ...(p.aliases ?? [])]);
-    if (s > 0) hits.push({ id: `area:${key}`, label: p.name, sublabel: `${p.am} · ${p.area}`, lat: p.lat, lng: p.lng, kind: "area", s: s + 4 });
+
+  const hits: Array<PlaceHit & { s: number }> = [];
+
+  // Score places using token index (much faster than edit distance)
+  for (const p of idx) {
+    let bestScore = 0;
+    for (const qt of queryTokenSets) {
+      const s = fastScore(qt, p.tokens);
+      if (s > bestScore) bestScore = s;
+    }
+    if (bestScore > 0) {
+      hits.push({ id: `area:${p.key}`, label: p.name, sublabel: `${p.am} · ${p.area}`, lat: p.lat, lng: p.lng, kind: "area", s: bestScore + 4 });
+    }
   }
+
+  // Score stations
   for (const st of stations) {
-    const s = score(q, [st.name, st.nameAm ?? "", st.area, st.landmark ?? ""]);
-    if (s > 0)
+    const text = normalize([st.name, st.nameAm ?? "", st.area, st.landmark ?? ""].join(" "));
+    const tokens = new Set(text.split(/\s+/).filter(Boolean));
+    let bestScore = 0;
+    for (const qt of queryTokenSets) {
+      const s = fastScore(qt, tokens);
+      if (s > bestScore) bestScore = s;
+    }
+    if (bestScore > 0) {
       hits.push({
         id: `station:${st.id}`,
         label: st.name,
@@ -128,14 +151,13 @@ export function searchLocal(query: string, stations: StationLite[], limit = 8): 
         lng: st.lng,
         kind: "station",
         stationId: st.id,
-        s,
+        s: bestScore,
       });
+    }
   }
+
   hits.sort((a, b) => b.s - a.s);
-  return hits.slice(0, limit).map(({ s: _s, ...rest }) => {
-    void _s;
-    return rest;
-  });
+  return hits.slice(0, limit).map(({ s: _s, ...rest }) => { void _s; return rest; });
 }
 
 export async function searchOsm(query: string, limit = 6): Promise<PlaceHit[]> {
@@ -145,7 +167,6 @@ export async function searchOsm(query: string, limit = 6): Promise<PlaceHit[]> {
   const cached = cache.get(key);
   if (cached && Date.now() - cached.at < 24 * 3600_000) return cached.hits;
 
-  // Respect the Nominatim usage policy (max ~1 request / second)
   const waitMs = lastNominatim + 1000 - Date.now();
   if (waitMs > 0) await new Promise((r) => setTimeout(r, Math.min(waitMs, 1000)));
   lastNominatim = Date.now();
@@ -202,14 +223,25 @@ export async function resolvePlaceQuery(query: string, stations: StationLite[]):
   return hits[0] ?? null;
 }
 
+// ── Spatial index for describeLocation ────────────────────────────────
+let nearestCache: Array<{ key: string; lat: number; lng: number }> | null = null;
+
+function buildNearestIndex() {
+  if (nearestCache) return nearestCache;
+  nearestCache = Object.entries(places).map(([key, p]) => ({ key, lat: p.lat, lng: p.lng }));
+  return nearestCache;
+}
+
 /** Human description of a coordinate, e.g. "near Megenagna". */
 export function describeLocation(point: LatLng): { label: string; nearest: string; meters: number } {
+  const idx = buildNearestIndex();
   let best = { key: "", d: Infinity };
-  for (const [key, p] of Object.entries(places)) {
-    const d = haversineM(point, p);
-    if (d < best.d) best = { key, d };
+  for (const p of idx) {
+    const d = haversineM(point, { lat: p.lat, lng: p.lng });
+    if (d < best.d) best = { key: p.key, d };
   }
-  const p = places[best.key];
+  const p = places[best.key as keyof typeof places];
+  if (!p) return { label: "Addis Ababa", nearest: "Addis Ababa", meters: Math.round(best.d) };
   return {
     label: best.d < 350 ? `At ${p.name}` : `Near ${p.name}`,
     nearest: p.name,

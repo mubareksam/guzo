@@ -28,8 +28,12 @@ export default function FeedbackForm({ defaultName, isLoggedIn }: { defaultName?
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, category, message }),
       });
+      if (!response.ok) {
+        let errorMsg = "Could not send feedback.";
+        try { const errData = await response.json(); errorMsg = errData?.error ?? errorMsg; } catch { errorMsg = `Server error (${response.status}).`; }
+        throw new Error(errorMsg);
+      }
       const data = await response.json();
-      if (!response.ok) throw new Error(data?.error ?? "Could not send feedback.");
       setState("done");
       setNotice(data.message);
       setMessage("");

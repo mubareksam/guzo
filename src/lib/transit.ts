@@ -67,11 +67,12 @@ export function modeInfo(mode: string) {
   return MODE_INFO[(mode in MODE_INFO ? mode : "minibus") as Mode];
 }
 
-export const STATION_KIND_INFO: Record<string, { label: string; am: string }> = {
+export const STATION_KIND_INFO: Record<string, { label: string; am: string; icon?: string }> = {
   tera: { label: "Taxi stand", am: "ታክሲ ተራ" },
   lrt: { label: "Light-rail station", am: "የባቡር ጣቢያ" },
   intercity: { label: "Bus station", am: "መናኸሪያ" },
   bus_terminal: { label: "Bus terminal", am: "የአውቶቡስ ማቆሚያ" },
+  bus_stop: { label: "Bus stop", am: "የአውቶቡስ ማቆሚያ" },
   bajaj_stand: { label: "Taxi & bajaj stand", am: "ታክሲ እና ባጃጅ ተራ" },
 };
 
@@ -88,12 +89,20 @@ export function haversineM(a: LatLng, b: LatLng): number {
   return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
-/** Street distance is ~30% longer than the straight line in Addis' grid-less network. */
-export const ROAD_FACTOR = 1.3;
+/** Street distance is ~35% longer than the straight line in Addis' grid-less network. */
+export const ROAD_FACTOR = 1.35;
 export const WALK_M_PER_MIN = 75;
 
 export function walkMetersEstimate(a: LatLng, b: LatLng) {
   return haversineM(a, b) * ROAD_FACTOR;
+}
+
+/** More accurate road distance estimate accounting for Addis terrain and road network. */
+export function roadDistanceKm(a: LatLng, b: LatLng): number {
+  const direct = haversineM(a, b);
+  // Short trips have more circuitous routes (more turns, one-way streets)
+  const factor = direct < 500 ? 1.6 : direct < 2000 ? 1.4 : direct < 5000 ? 1.35 : 1.3;
+  return (direct * factor) / 1000;
 }
 
 export function walkMinutes(meters: number) {
@@ -137,9 +146,13 @@ export function rideMinutes(mode: Mode, km: number, hour: number): number {
   const period = trafficPeriod(hour);
   let factor = mode === "train" ? 1 : PERIOD_INFO[period].factor;
   if (mode === "intercity_bus") factor = Math.sqrt(factor); // most of the trip is outside city traffic
+  // Very short trips (< 1km) are slower due to loading/unloading
+  const shortTripPenalty = km < 1 ? 3 : km < 2 ? 1.5 : 0;
   const speed = BASE_SPEED_KMH[mode] * factor;
   const dwell = mode === "train" ? 0 : mode === "city_bus" ? 0.35 * km : 0.1 * km; // stops for passengers
-  return Math.max(2, Math.round((km / speed) * 60 + dwell));
+  // Transfer time between vehicles
+  const boardTime = 0.5; // boarding time
+  return Math.max(2, Math.round((km / speed) * 60 + dwell + shortTripPenalty + boardTime));
 }
 
 export function isServiceRunning(mode: Mode, hour: number) {

@@ -13,6 +13,7 @@ export type MarkerKind =
   | "intercity"
   | "bajaj_stand"
   | "bus_terminal"
+  | "bus_stop"
   | "origin"
   | "destination"
   | "board"
@@ -54,10 +55,11 @@ export type MapViewProps = {
 
 const KIND_STYLE: Record<string, { bg: string; icon: string; size: number; radius: string }> = {
   tera: { bg: "#124532", icon: "minibus", size: 30, radius: "9px" },
-  bajaj_stand: { bg: "#124532", icon: "bajaj", size: 30, radius: "9px" },
+  bajaj_stand: { bg: "#db2777", icon: "bajaj", size: 28, radius: "8px" },
   lrt: { bg: "#0284c7", icon: "train", size: 30, radius: "9px" },
   intercity: { bg: "#7c3aed", icon: "bus", size: 30, radius: "9px" },
   bus_terminal: { bg: "#16a34a", icon: "bus", size: 30, radius: "9px" },
+  bus_stop: { bg: "#f59e0b", icon: "bus", size: 24, radius: "7px" },
   selected: { bg: "#e3ae3c", icon: "minibus", size: 38, radius: "11px" },
   origin: { bg: "#2f7d5b", icon: "person", size: 36, radius: "999px" },
   destination: { bg: "#b4493c", icon: "flag", size: 36, radius: "999px" },

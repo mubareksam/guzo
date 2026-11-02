@@ -46,8 +46,12 @@ export default function ReportForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ stationId, crowd, waitMinutes, mode, note }),
       });
+      if (!response.ok) {
+        let errorMsg = "Could not save the report.";
+        try { const errData = await response.json(); errorMsg = errData?.error ?? errorMsg; } catch { errorMsg = `Server error (${response.status}).`; }
+        throw new Error(errorMsg);
+      }
       const data = await response.json();
-      if (!response.ok) throw new Error(data?.error ?? "Could not save the report.");
       setState("done");
       setMessage(data.message);
       setNote("");
