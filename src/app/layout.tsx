@@ -11,8 +11,16 @@ export const metadata: Metadata = {
     "Guzo maps every taxi station in Addis Ababa: find the nearest tera, see where minibuses, city buses and the light rail go, compare fares and travel time, and keep the map fresh with rider reports.",
   applicationName: "Guzo",
   manifest: "/manifest.webmanifest",
-  icons: { icon: "/icon.svg", apple: "/icon.svg" },
-  keywords: ["Addis Ababa", "taxi station", "tera", "minibus", "Ethiopia", "transport", "Guzo"],
+  icons: { icon: "/icon.svg", apple: "/icon-192.svg" },
+  keywords: ["Addis Ababa", "taxi station", "tera", "minibus", "Ethiopia", "transport", "Guzo", "ጉዞ"],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Guzo",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
@@ -29,6 +37,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Guzo" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <link rel="apple-touch-icon" href="/icon-192.svg" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
