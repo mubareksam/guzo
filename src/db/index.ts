@@ -1,13 +1,20 @@
 import { drizzle } from "drizzle-orm/pglite";
 import { PGlite } from "@electric-sql/pglite";
-import fs from "node:fs";
-import path from "node:path";
 
 // ── PGlite: full PostgreSQL running in-process via WASM ──────────────
-// Persists to a local directory so data survives server restarts.
+// In serverless environments (Vercel), use in-memory mode
+// In development, can persist to local directory if needed
 function resolveDataDir(): string {
+  // In production/serverless, always use in-memory mode
+  if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+    return "";
+  }
+  
+  // In development, try to use persistent storage
   const requested = process.env.PGLITE_DATA_DIR || ".pglite/db";
   try {
+    const fs = require("node:fs");
+    const path = require("node:path");
     const abs = path.resolve(requested);
     fs.mkdirSync(abs, { recursive: true });
     return abs;
