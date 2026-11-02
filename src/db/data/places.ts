@@ -136,6 +136,35 @@ export const places: Record<string, Place> = {
   hawassa: { name: "Hawassa", am: "ሐዋሳ", lat: 7.06, lng: 38.48, area: "SNNPR" },
   bahir_dar: { name: "Bahir Dar", am: "ባህር ዳር", lat: 11.59, lng: 37.37, area: "Amhara" },
   gonder: { name: "Gondar", am: "ጎንደር", lat: 12.60, lng: 37.47, area: "Amhara" },
+  debre_birhan: { name: "Debre Birhan", am: "ደብረ ብርሃን", lat: 9.6800, lng: 39.5300, area: "Amhara" },
+  ambo: { name: "Ambo", am: "አምቦ", lat: 8.9850, lng: 37.8500, area: "Oromia" },
+  sebeta: { name: "Sebeta", am: "ሰበታ", lat: 8.8700, lng: 38.6300, area: "Oromia" },
+  sululta: { name: "Sululta", am: "ሱልልጣ", lat: 9.1800, lng: 38.7200, area: "Oromia" },
+  sendafa: { name: "Sendafa", am: "ሰንደፋ", lat: 9.1500, lng: 38.7800, area: "Oromia" },
+  holeta: { name: "Holeta", am: "ሆሌታ", lat: 8.9600, lng: 38.5800, area: "Oromia" },
+  tafo: { name: "Tafo", am: "ታፎ", lat: 9.0200, lng: 38.6500, area: "Oromia" },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // ADDITIONAL ROUTE PLACES (referenced in route via arrays)
+  // ═══════════════════════════════════════════════════════════════════════
+  gurd_shola: { name: "Gurd Shola", am: "ጉርድ ሾላ", lat: 9.0280, lng: 38.8150, area: "Nefas Silk-Lafto", aliases: ["gurd"] },
+  imperial: { name: "Imperial", am: "ኢምፔሪያል", lat: 9.0180, lng: 38.8050, area: "Bole", aliases: ["imperial hotel"] },
+  kera: { name: "Kera", am: "ቀራ", lat: 8.9850, lng: 38.7550, area: "Nifas Silk-Lafto" },
+  figa: { name: "Figa", am: "ፊጋ", lat: 9.0150, lng: 38.8850, area: "Yeka" },
+  coca: { name: "Coca", am: "ኮካ", lat: 8.9950, lng: 38.7850, area: "Nifas Silk-Lafto" },
+  lancha: { name: "Lancha", am: "ላንቻ", lat: 8.9750, lng: 38.7450, area: "Nifas Silk-Lafto" },
+  kebena: { name: "Kebena", am: "ከበና", lat: 8.9450, lng: 38.7350, area: "Nifas Silk-Lafto" },
+  mebrat_hail: { name: "Mebrat Hail", am: "መብራት ሃይል", lat: 9.0220, lng: 38.7580, area: "Addis Ketema" },
+  olympia: { name: "Olympia", am: "ኦሊምፒያ", lat: 9.0050, lng: 38.7450, area: "Addis Ketema", aliases: ["olympia cinema"] },
+  tekle_haimanot: { name: "Tekle Haimanot", am: "ተክለ ሃይማኖት", lat: 9.0280, lng: 38.7350, area: "Addis Ketema", aliases: ["teklehaimanot"] },
+  wollo_bole: { name: "Wollo Bole", am: "ወሎ ቦሌ", lat: 9.0150, lng: 38.7950, area: "Bole" },
+  bole_arabsa: { name: "Bole Arabsa", am: "ቦሌ አረብሳ", lat: 9.0120, lng: 38.8080, area: "Bole", aliases: ["arabsa"] },
+  amist_kilo: { name: "Amist Kilo", am: "አምስት ኪሎ", lat: 9.0350, lng: 38.7650, area: "Arada", aliases: ["5 kilo"] },
+  abnet: { name: "Abnet", am: "አብነት", lat: 9.0080, lng: 38.7750, area: "Kirkos" },
+  bambis: { name: "Bambis", am: "ባምቢስ", lat: 8.9820, lng: 38.7680, area: "Nifas Silk-Lafto" },
+  legetafo: { name: "Legetafo", am: "ለገታፎ", lat: 9.0050, lng: 38.8150, area: "Bole" },
+  sebategna: { name: "Sebategna", am: "ሰባተኛ", lat: 8.9680, lng: 38.7520, area: "Nifas Silk-Lafto" },
+  semen_mazoria: { name: "Semen Mazoria", am: "ሰመን ማዞሪያ", lat: 8.9750, lng: 38.7580, area: "Nifas Silk-Lafto" },
 };
 
 export type PlaceKey = keyof typeof places;
