@@ -4,6 +4,7 @@ import "./globals.css";
 import SiteHeader from "@/app/components/SiteHeader";
 import SiteFooter from "@/app/components/SiteFooter";
 import PwaInstall from "@/app/components/PwaInstall";
+import BottomNav from "@/app/components/BottomNav";
 import { getCurrentUser } from "@/lib/auth";
 
 export const metadata: Metadata = {
@@ -57,11 +58,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           }}
         />
       </head>
-      <body className="min-h-screen bg-cream text-ink antialiased">
+      <body className="min-h-screen bg-cream text-ink antialiased md:pb-0 pb-16">
         <PwaInstall />
         <SiteHeader user={user} />
         <main className="min-h-[60vh]">{children}</main>
         <SiteFooter />
+        <BottomNav />
       </body>
     </html>
   );
