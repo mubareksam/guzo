@@ -7,7 +7,7 @@ import { places } from "@/db/data/places";
 import { lineDefs, stationDefs, type StationDef } from "@/db/data/network";
 import { fareFor, haversineM, ROAD_FACTOR, rideMinutes, type Mode } from "@/lib/transit";
 
-export const SEED_VERSION = "network-v5";
+export const SEED_VERSION = "network-v6";
 
 let seedPromise: Promise<void> | null = null;
 
