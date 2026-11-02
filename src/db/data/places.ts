@@ -43,6 +43,7 @@ export const places: Record<string, Place> = {
   entoto: { name: "Entoto Maryam", am: "እንጦጦ ማርያም", lat: 9.0890, lng: 38.7635, area: "Gulele", aliases: ["entoto park"] },
   minilik_hospital: { name: "Minilik Hospital", am: "ሚኒሊክ ሆስፒታል", lat: 9.0420, lng: 38.7580, area: "Gulele" },
   addisu_gebeya: { name: "Addisu Gebeya", am: "አዲሱ ገበያ", lat: 9.0610, lng: 38.7470, area: "Gulele" },
+  wingate: { name: "Wingate", am: "ዊንጌት", lat: 9.0600, lng: 38.7290, area: "Gulele" },
 
   // ═══════════════════════════════════════════════════════════════════════
   // ADDIS KETEMA SUBCITY
@@ -63,45 +64,66 @@ export const places: Record<string, Place> = {
   // ═══════════════════════════════════════════════════════════════════════
   bole_medhanialem: { name: "Bole Medhanialem", am: "ቦሌ መድኃኔዓለም", lat: 8.9961, lng: 38.7895, area: "Bole", aliases: ["edna mall"] },
   bole_airport: { name: "Bole Airport", am: "ቦሌ አየር ማረፊያ", lat: 8.9779, lng: 38.7993, area: "Bole", aliases: ["airport"] },
+  bole_michael: { name: "Bole Michael", am: "ቦሌ ሚካኤል", lat: 8.983, lng: 38.774, area: "Bole" },
+  bole_bulbula: { name: "Bole Bulbula", am: "ቦሌ ቡልቡላ", lat: 8.96, lng: 38.781, area: "Bole" },
   gerji: { name: "Gerji", am: "ገርጂ", lat: 8.9965, lng: 38.8155, area: "Bole" },
+  gerji_roba: { name: "Gerji Roba", am: "ገርጂ ሮባ", lat: 8.9948, lng: 38.8136, area: "Bole" },
+  gerji_sunshine: { name: "Gerji Sunshine", am: "ገርጂ ሰንሻይን", lat: 8.9935, lng: 38.8180, area: "Bole" },
   goro: { name: "Goro", am: "ጎሮ", lat: 8.9900, lng: 38.8600, area: "Bole" },
   bethel: { name: "Bethel", am: "ቤቴል", lat: 8.9900, lng: 38.7900, area: "Bole" },
   summit: { name: "Summit", am: "ሰሚት", lat: 9.0006, lng: 38.8510, area: "Bole" },
+  wollo_sefer: { name: "Wollo Sefer", am: "ወሎ ሰፈር", lat: 9.0000, lng: 38.7700, area: "Bole" },
 
   // ═══════════════════════════════════════════════════════════════════════
   // YEKA SUBCITY
   // ═══════════════════════════════════════════════════════════════════════
   megenagna: { name: "Megenagna", am: "መገናኛ", lat: 9.0196, lng: 38.802, area: "Yeka", aliases: ["zefmesh"] },
+  megenagna_bole_subcity: { name: "Megenagna Bole Subcity", am: "መገናኛ ቦሌ ክፍለ ከተማ", lat: 9.0178, lng: 38.8018, area: "Yeka" },
   shola: { name: "Shola Market", am: "ሾላ ገበያ", lat: 9.0225, lng: 38.7946, area: "Yeka", aliases: ["shola gebeya"] },
   cmc: { name: "CMC", am: "ሲኤምሲ", lat: 9.0180, lng: 38.8430, area: "Yeka" },
   ayat: { name: "Ayat", am: "አያት", lat: 9.0320, lng: 38.8680, area: "Yeka" },
   kotebe: { name: "Kotebe", am: "ኮተቤ", lat: 9.0410, lng: 38.8330, area: "Yeka" },
   lamberet: { name: "Lamberet", am: "ላምበረት", lat: 9.0262, lng: 38.8195, area: "Yeka" },
+  hayahulet: { name: "Haya Hulet", am: "ሃያ ሁለት", lat: 9.0125, lng: 38.7885, area: "Yeka" },
+  ferensay: { name: "Ferensay", am: "ፈረንሳይ", lat: 9.0490, lng: 38.7815, area: "Yeka" },
+  wesen: { name: "Wesen", am: "ወሰን", lat: 9.0328, lng: 38.8442, area: "Yeka" },
+  yeka_abado: { name: "Yeka Abado", am: "የካ አባዶ", lat: 9.0600, lng: 38.8870, area: "Yeka" },
 
   // ═══════════════════════════════════════════════════════════════════════
   // NIFAS SILK-LAFTO SUBCITY
   // ═══════════════════════════════════════════════════════════════════════
+  sar_bet: { name: "Sar Bet", am: "ሳር ቤት", lat: 8.996, lng: 38.74, area: "Nifas Silk-Lafto" },
   gofa: { name: "Gofa Mazoria", am: "ጎፋ ማዞሪያ", lat: 8.98, lng: 38.753, area: "Nifas Silk-Lafto" },
+  bulgaria: { name: "Bulgaria", am: "ቡልጋሪያ", lat: 8.9998, lng: 38.7570, area: "Nifas Silk-Lafto" },
   gotera: { name: "Gotera", am: "ጎተራ", lat: 8.979, lng: 38.759, area: "Nifas Silk-Lafto" },
   mekanisa: { name: "Mekanisa", am: "መካኒሳ", lat: 8.974, lng: 38.731, area: "Nifas Silk-Lafto" },
   lafto: { name: "Lafto", am: "ላፍቶ", lat: 8.95, lng: 38.742, area: "Nifas Silk-Lafto" },
   jemo: { name: "Jemo", am: "ጀሞ", lat: 8.9580, lng: 38.7120, area: "Nifas Silk-Lafto" },
+  lebu: { name: "Lebu", am: "ለቡ", lat: 8.956, lng: 38.725, area: "Nifas Silk-Lafto" },
   saris: { name: "Saris", am: "ሳሪስ", lat: 8.9455, lng: 38.768, area: "Nifas Silk-Lafto" },
   adey_abeba: { name: "Adey Abeba", am: "አደይ አበባ", lat: 8.9568, lng: 38.7638, area: "Nifas Silk-Lafto" },
+  haile_garment: { name: "Haile Garment", am: "ኃይሌ ጋርመንት", lat: 8.9372, lng: 38.7346, area: "Nifas Silk-Lafto" },
 
   // ═══════════════════════════════════════════════════════════════════════
   // KOLFE KERANYO SUBCITY
   // ═══════════════════════════════════════════════════════════════════════
   kolfe: { name: "Kolfe", am: "ቆልፌ", lat: 9.0300, lng: 38.7120, area: "Kolfe Keranyo" },
   shegole: { name: "Shegole", am: "ሸጎሌ", lat: 9.0050, lng: 38.6950, area: "Kolfe Keranyo" },
+  zenebework: { name: "Zenebework", am: "ዘነበወርቅ", lat: 8.99, lng: 38.708, area: "Kolfe Keranyo" },
+  alem_bank: { name: "Alem Bank", am: "ዓለም ባንክ", lat: 9.0002, lng: 38.679, area: "Kolfe Keranyo" },
   burayu: { name: "Burayu", am: "ቡራዩ", lat: 9.0640, lng: 38.6690, area: "Kolfe Keranyo" },
   asko: { name: "Asko", am: "አስኮ", lat: 9.065, lng: 38.695, area: "Kolfe Keranyo" },
+  ayer_tena: { name: "Ayer Tena", am: "አየር ጤና", lat: 8.9944, lng: 38.6918, area: "Kolfe Keranyo" },
 
   // ═══════════════════════════════════════════════════════════════════════
   // AKAKI KALITY SUBCITY
   // ═══════════════════════════════════════════════════════════════════════
   kality: { name: "Kality", am: "ቃሊቲ", lat: 8.9090, lng: 38.7720, area: "Akaki Kality" },
+  kality_total: { name: "Kality Total", am: "ቃሊቲ ቶታል", lat: 8.9200, lng: 38.7680, area: "Akaki Kality" },
+  kality_bus_terminal: { name: "Kality Bus Terminal", am: "ቃሊቲ መናሃሪያ", lat: 8.8943, lng: 38.7756, area: "Akaki Kality" },
   akaki: { name: "Akaki", am: "አቃቂ", lat: 8.87, lng: 38.79, area: "Akaki Kality" },
+  tulu_dimtu: { name: "Tulu Dimtu", am: "ቱሉ ዲምቱ", lat: 8.8745, lng: 38.8199, area: "Akaki Kality" },
+  koye_feche: { name: "Koye Feche", am: "ቆጤ ፈጬ", lat: 8.9032, lng: 38.8248, area: "Akaki Kality" },
   gelan: { name: "Gelan", am: "ገላን", lat: 8.9300, lng: 38.7850, area: "Akaki Kality" },
   dukem: { name: "Dukem", am: "ዱከም", lat: 8.7820, lng: 38.8960, area: "Akaki Kality" },
 
