@@ -1,5 +1,7 @@
 # Guzo — ጉዞ · Addis Ababa transit planner
 
+> **New:** Windows organizer app → **[ArrangeIt](https://github.com/mubareksam/arrangeit)** — standalone repo `mubareksam/arrangeit` (Rust + Tauri). Auto-arrange, duplicate finder, batch rename & folder styles. Preview at `/organizer`.
+
 **Guzo** (Amharic ጉዞ, "journey") maps every taxi stand (*tera*), light-rail platform and bus station in Addis Ababa and plans
 door-to-door trips across **minibus taxis, Anbessa/Sheger city buses, the Addis Light Rail, bajajs and intercity buses**.
 
