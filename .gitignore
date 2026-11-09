@@ -8,3 +8,4 @@ next-env.d.ts
 public/guzo-source.tar.gz
 tsconfig.tsbuildinfo
 .pglite
+build/
