@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { Home, LogIn, LogOut, MapPinned, MessageSquareText, Navigation, PlusCircle, ShieldCheck, Trophy, UserRound } from "lucide-react";
+import { FileStack, Home, LogIn, LogOut, MapPinned, MessageSquareText, Navigation, PlusCircle, ShieldCheck, Trophy, UserRound } from "lucide-react";
 import type { SessionUser } from "@/lib/auth";
 import { badgeFor } from "@/lib/badges";
 import DarkModeToggle from "./DarkModeToggle";
 
 const links = [
+  { href: "/organizer", label: "Organizer", icon: FileStack },
   { href: "/plan", label: "Plan a trip", icon: Navigation },
   { href: "/stations", label: "Stations", icon: MapPinned },
   { href: "/contribute", label: "Contribute", icon: PlusCircle },
